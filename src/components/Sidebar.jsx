@@ -13,6 +13,7 @@ import { dbService } from '../database/dbService';
 
 export default function Sidebar({ activeTab, setActiveTab, currentAdmin, onLogout }) {
   const [dbMode, setDbModeState] = useState(dbService.getDbMode());
+  const isSubAdmin = import.meta.env.VITE_ROLE === 'admin2' || currentAdmin === 'admin2';
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -106,51 +107,53 @@ export default function Sidebar({ activeTab, setActiveTab, currentAdmin, onLogou
       </div>
 
       {/* Database Mode Switcher Widget at Sidebar Bottom */}
-      <div className="db-selector-widget" style={{ borderTop: '1px solid #bfdbfe', paddingTop: '1.2rem' }}>
-        <span style={{ 
-          fontSize: '0.72rem', 
-          fontWeight: '800', 
-          color: '#1e3a8a', 
-          textTransform: 'uppercase', 
-          letterSpacing: '0.08em', 
-          display: 'flex', 
-          alignItems: 'center',
-          gap: '0.4rem',
-          marginBottom: '0.75rem' 
-        }}>
-          <Database size={12} /> Data Storage Mode
-        </span>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <button 
-            type="button" 
-            onClick={() => handleModeChange('cloud')}
-            disabled={!dbService.isFirebaseConfigured()}
-            className={`btn-mode-toggle ${dbMode === 'cloud' ? 'active' : ''}`}
-            title={!dbService.isFirebaseConfigured() ? "Firebase is not configured in .env" : "Connect to Firebase"}
-          >
-            <div className="status-dot cloud" />
-            <div style={{ textAlign: 'left' }}>
-              <div className="mode-title">Cloud Mode</div>
-              <div className="mode-desc">
-                {dbService.isFirebaseConfigured() ? 'Firebase Live' : 'Not Configured'}
+      {!isSubAdmin && (
+        <div className="db-selector-widget" style={{ borderTop: '1px solid #bfdbfe', paddingTop: '1.2rem' }}>
+          <span style={{ 
+            fontSize: '0.72rem', 
+            fontWeight: '800', 
+            color: '#1e3a8a', 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.08em', 
+            display: 'flex', 
+            alignItems: 'center',
+            gap: '0.4rem',
+            marginBottom: '0.75rem' 
+          }}>
+            <Database size={12} /> Data Storage Mode
+          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button 
+              type="button" 
+              onClick={() => handleModeChange('cloud')}
+              disabled={!dbService.isFirebaseConfigured()}
+              className={`btn-mode-toggle ${dbMode === 'cloud' ? 'active' : ''}`}
+              title={!dbService.isFirebaseConfigured() ? "Firebase is not configured in .env" : "Connect to Firebase"}
+            >
+              <div className="status-dot cloud" />
+              <div style={{ textAlign: 'left' }}>
+                <div className="mode-title">Cloud Mode</div>
+                <div className="mode-desc">
+                  {dbService.isFirebaseConfigured() ? 'Firebase Live' : 'Not Configured'}
+                </div>
               </div>
-            </div>
-          </button>
-          
-          <button 
-            type="button" 
-            onClick={() => handleModeChange('local')}
-            className={`btn-mode-toggle ${dbMode === 'local' ? 'active' : ''}`}
-            title="Use browser storage"
-          >
-            <div className="status-dot local" />
-            <div style={{ textAlign: 'left' }}>
-              <div className="mode-title">Local Test Mode</div>
-              <div className="mode-desc">LocalStorage (Offline)</div>
-            </div>
-          </button>
+            </button>
+            
+            <button 
+              type="button" 
+              onClick={() => handleModeChange('local')}
+              className={`btn-mode-toggle ${dbMode === 'local' ? 'active' : ''}`}
+              title="Use browser storage"
+            >
+              <div className="status-dot local" />
+              <div style={{ textAlign: 'left' }}>
+                <div className="mode-title">Local Test Mode</div>
+                <div className="mode-desc">LocalStorage (Offline)</div>
+              </div>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 }
