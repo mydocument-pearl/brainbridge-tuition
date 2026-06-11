@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BrainBridge</string>
+    <string name="title_activity_main">BrainBridge</string>
+    <string name="package_name">com.brainbridge.app</string>
+    <string name="custom_url_scheme">com.brainbridge.app</string>
+</resources>
