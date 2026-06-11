@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { dbService, formatDateDisplay } from '../database/dbService';
+import { dbService, formatDateDisplay, sendWhatsAppMessage } from '../database/dbService';
 import ReceiptPDF from '../components/ReceiptPDF';
-import { IndianRupee, FileText, Check, Plus, Search, HelpCircle, DollarSign, Calendar } from 'lucide-react';
+import { IndianRupee, FileText, Check, Plus, Search, HelpCircle, DollarSign, Calendar, MessageCircle } from 'lucide-react';
 
 export default function Fees() {
   const [fees, setFees] = useState([]);
@@ -215,13 +215,28 @@ export default function Fees() {
                             <FileText size={14} /> Receipt
                           </button>
                         ) : (
-                          <button 
-                            className="btn btn-success" 
-                            onClick={() => handleOpenCollectModal(record)}
-                            style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', gap: '0.35rem' }}
-                          >
-                            <Check size={14} /> Collect
-                          </button>
+                          <div style={{ display: 'inline-flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                            <button 
+                              className="btn btn-secondary" 
+                              onClick={() => {
+                                const studentInfo = students.find(s => s.id === record.student_id);
+                                const parentMobile = studentInfo?.parent_mobile || studentInfo?.mobile || '';
+                                const message = `Dear Parent, this is a reminder from BrainBridge Tuition that the outstanding fee of ₹${record.amount} for ${student.name} was due on ${formatDateDisplay(record.due_date)}. Please pay as soon as possible. Thank you.`;
+                                sendWhatsAppMessage(parentMobile, message);
+                              }}
+                              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', gap: '0.35rem', borderColor: '#25d366', color: '#25d366' }}
+                              title="Send WhatsApp Reminder"
+                            >
+                              <MessageCircle size={14} /> Remind
+                            </button>
+                            <button 
+                              className="btn btn-success" 
+                              onClick={() => handleOpenCollectModal(record)}
+                              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', gap: '0.35rem' }}
+                            >
+                              <Check size={14} /> Collect
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>

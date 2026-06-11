@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { dbService, formatDateDisplay } from '../database/dbService';
-import { Plus, Search, Filter, Edit, Phone, MapPin } from 'lucide-react';
+import { dbService, formatDateDisplay, sendWhatsAppMessage } from '../database/dbService';
+import { Plus, Search, Filter, Edit, Phone, MapPin, MessageCircle } from 'lucide-react';
 
 export default function Students() {
   const [students, setStudents] = useState([]);
@@ -626,17 +626,57 @@ export default function Students() {
 
                 <div>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.04em' }}>Contact (Student)</span>
-                  <div style={{ fontWeight: '600', fontSize: '0.92rem', color: 'var(--text-primary)', marginTop: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                    <Phone size={13} style={{ color: 'var(--text-muted)' }} />
-                    {selectedStudentForDetail.mobile}
+                  <div style={{ fontWeight: '600', fontSize: '0.92rem', color: 'var(--text-primary)', marginTop: '0.15rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                      <Phone size={13} style={{ color: 'var(--text-muted)' }} />
+                      {selectedStudentForDetail.mobile}
+                    </span>
+                    <button 
+                      onClick={() => sendWhatsAppMessage(selectedStudentForDetail.mobile, `Hello ${selectedStudentForDetail.name},`)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#25d366',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        fontSize: '0.75rem',
+                        fontWeight: '700'
+                      }}
+                      title="WhatsApp Student"
+                    >
+                      <MessageCircle size={14} /> WhatsApp
+                    </button>
                   </div>
                 </div>
 
                 <div>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.04em' }}>Parent's Contact</span>
-                  <div style={{ fontWeight: '600', fontSize: '0.92rem', color: 'var(--text-primary)', marginTop: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                    <Phone size={13} style={{ color: 'var(--text-muted)' }} />
-                    {selectedStudentForDetail.parent_mobile || 'N/A'}
+                  <div style={{ fontWeight: '600', fontSize: '0.92rem', color: 'var(--text-primary)', marginTop: '0.15rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                      <Phone size={13} style={{ color: 'var(--text-muted)' }} />
+                      {selectedStudentForDetail.parent_mobile || 'N/A'}
+                    </span>
+                    {selectedStudentForDetail.parent_mobile && selectedStudentForDetail.parent_mobile !== 'N/A' && (
+                      <button 
+                        onClick={() => sendWhatsAppMessage(selectedStudentForDetail.parent_mobile, `Hello, this is from BrainBridge Tuition regarding ${selectedStudentForDetail.name}.`)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#25d366',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          fontSize: '0.75rem',
+                          fontWeight: '700'
+                        }}
+                        title="WhatsApp Parent"
+                      >
+                        <MessageCircle size={14} /> WhatsApp
+                      </button>
+                    )}
                   </div>
                 </div>
 

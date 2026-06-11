@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { dbService, formatDateDisplay } from '../database/dbService';
-import { Calendar, Save, Check, X, CheckSquare, Square, Eye } from 'lucide-react';
+import { dbService, formatDateDisplay, sendWhatsAppMessage } from '../database/dbService';
+import { Calendar, Save, Check, X, CheckSquare, Square, Eye, MessageCircle } from 'lucide-react';
 
 export default function Attendance() {
   const [batches, setBatches] = useState([]);
@@ -303,8 +303,32 @@ export default function Attendance() {
                             overflow: 'hidden',
                             transition: 'all 0.25s ease'
                           }}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.25rem' }}>
-                              📞 Parent Mobile: {student.parent_mobile || 'N/A'}
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.25rem' }}>
+                              <span>📞 Parent Mobile: {student.parent_mobile || 'N/A'}</span>
+                              {student.parent_mobile && student.parent_mobile !== 'N/A' && !isPresent && (
+                                <button 
+                                  onClick={() => {
+                                    const batchName = getBatchName(student.batch_id);
+                                    const message = `Dear Parent, this is to inform you that your child ${student.name} was ABSENT today (${formatDateDisplay(selectedDate)}) in the ${batchName} class. Please ensure they attend regularly. Thank you, BrainBridge Tuition.`;
+                                    sendWhatsAppMessage(student.parent_mobile, message);
+                                  }}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#25d366',
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '700',
+                                    padding: 0
+                                  }}
+                                  title="Send Absent Alert"
+                                >
+                                  <MessageCircle size={14} /> Send Absent Alert
+                                </button>
+                              )}
                             </span>
                           </div>
                         </td>

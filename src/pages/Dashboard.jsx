@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { dbService, formatDateDisplay } from '../database/dbService';
+import { dbService, formatDateDisplay, sendWhatsAppMessage } from '../database/dbService';
 import { Users, BookOpen, CheckCircle, IndianRupee, Bell, Play, FileSpreadsheet, Star, Quote, Plus } from 'lucide-react';
 
 export default function Dashboard({ setActiveTab }) {
@@ -713,7 +713,10 @@ export default function Dashboard({ setActiveTab }) {
                 Dismiss
               </button>
               <button className="btn btn-primary" onClick={() => {
-                alert(`WhatsApp Reminder Sent to: ${activeSimulatedRecord.parentMobile}`);
+                if (activeSimulatedRecord) {
+                  const message = `Dear Parent, this is a reminder from BrainBridge Tuition that the fee of ₹${activeSimulatedRecord.amount} for ${activeSimulatedRecord.studentName} is due. Please pay as soon as possible. Thank you.`;
+                  sendWhatsAppMessage(activeSimulatedRecord.parentMobile, message);
+                }
                 setShowNotificationModal(false);
               }}>
                 Trigger WhatsApp Reminder

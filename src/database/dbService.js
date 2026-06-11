@@ -26,6 +26,18 @@ export const formatDateDisplay = (dateStr) => {
   return dateStr;
 };
 
+// Helper to open WhatsApp web/app with pre-filled message
+export const sendWhatsAppMessage = (mobileNumber, messageText) => {
+  if (!mobileNumber) return;
+  let cleanNumber = mobileNumber.replace(/\D/g, '');
+  if (cleanNumber.length === 10) {
+    cleanNumber = '91' + cleanNumber;
+  }
+  const encodedText = encodeURIComponent(messageText);
+  const url = `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encodedText}`;
+  window.open(url, '_blank');
+};
+
 
 // Helper to generate UUIDs locally
 const generateUUID = () => {
