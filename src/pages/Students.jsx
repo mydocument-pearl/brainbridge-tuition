@@ -17,6 +17,8 @@ export default function Students() {
   const [showModal, setShowModal] = useState(false);
   const [showBatchModal, setShowBatchModal] = useState(false);
   const [selectedStudentForDetail, setSelectedStudentForDetail] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingStudentId, setEditingStudentId] = useState(null);
   const [batchForm, setBatchForm] = useState({
     name: '',
     subject: '',
@@ -70,10 +72,19 @@ export default function Students() {
 
     try {
       setLoading(true);
-      const newStudent = await dbService.addStudent(formData);
-      setStudents(prev => [...prev, newStudent]);
+      if (isEditing) {
+        // Update existing student details
+        const updated = await dbService.updateStudent(editingStudentId, formData);
+        setStudents(prev => prev.map(s => s.id === editingStudentId ? updated : s));
+        alert("Student details updated successfully!");
+      } else {
+        // Register new student
+        const newStudent = await dbService.addStudent(formData);
+        setStudents(prev => [...prev, newStudent]);
+      }
       setShowModal(false);
-      // Reset form
+      setIsEditing(false);
+      setEditingStudentId(null);
       setFormData({
         name: '',
         mobile: '',
@@ -85,10 +96,44 @@ export default function Students() {
         admission_date: new Date().toISOString().split('T')[0]
       });
     } catch (err) {
-      console.error("Error adding student:", err);
+      console.error("Error saving student:", err);
+      alert("Failed to save details: " + err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenEdit = (student) => {
+    setFormData({
+      name: student.name || '',
+      mobile: student.mobile || '',
+      parent_mobile: student.parent_mobile || '',
+      address: student.address || '',
+      school: student.school || '',
+      standard: student.standard || '10th',
+      batch_id: student.batch_id || '',
+      admission_date: student.admission_date || new Date().toISOString().split('T')[0]
+    });
+    setIsEditing(true);
+    setEditingStudentId(student.id);
+    setSelectedStudentForDetail(null); // Close detail modal
+    setShowModal(true); // Open edit form modal
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setIsEditing(false);
+    setEditingStudentId(null);
+    setFormData({
+      name: '',
+      mobile: '',
+      parent_mobile: '',
+      address: '',
+      school: '',
+      standard: '10th',
+      batch_id: batches[0]?.id || '',
+      admission_date: new Date().toISOString().split('T')[0]
+    });
   };
 
   const handleArchiveStudent = async (studentId) => {
@@ -191,7 +236,11 @@ export default function Students() {
               <Plus size={16} />
               <span>Create Batch</span>
             </button>
-            <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            <button className="btn btn-primary" onClick={() => {
+              setIsEditing(false);
+              setEditingStudentId(null);
+              setShowModal(true);
+            }}>
               <Plus size={18} />
               <span>Register Student</span>
             </button>
@@ -401,8 +450,8 @@ export default function Students() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">Register New Student</h3>
-              <button className="modal-close" onClick={() => setShowModal(false)}>Close</button>
+              <h3 className="modal-title">{isEditing ? 'Edit Student Details' : 'Register New Student'}</h3>
+              <button className="modal-close" onClick={handleCloseModal}>Close</button>
             </div>
             
             <form onSubmit={handleSubmit}>
@@ -503,11 +552,11 @@ export default function Students() {
               </div>
 
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Saving...' : 'Register Student'}
+                  {loading ? 'Saving...' : isEditing ? 'Save Changes' : 'Register Student'}
                 </button>
               </div>
             </form>
@@ -595,7 +644,7 @@ export default function Students() {
               <button className="modal-close" onClick={() => setSelectedStudentForDetail(null)}>Close</button>
             </div>
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', width: '100%' }}>
                 <div style={{
                   width: '52px',
                   height: '52px',
@@ -610,10 +659,29 @@ export default function Students() {
                 }}>
                   {selectedStudentForDetail.name.charAt(0)}
                 </div>
-                <div>
+                <div style={{ flexGrow: 1 }}>
                   <h4 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: 'var(--text-primary)' }}>{selectedStudentForDetail.name}</h4>
                   <span className="badge badge-success" style={{ marginTop: '0.3rem' }}>{selectedStudentForDetail.standard} Standard</span>
                 </div>
+                <button 
+                  onClick={() => handleOpenEdit(selectedStudentForDetail)}
+                  style={{
+                    background: 'rgba(37, 99, 235, 0.08)',
+                    border: '1px solid rgba(37, 99, 235, 0.15)',
+                    borderRadius: '50%',
+                    width: '36px',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--primary)',
+                    cursor: 'pointer',
+                    transition: 'var(--transition-smooth)'
+                  }}
+                  title="Edit Profile"
+                >
+                  <Edit size={16} />
+                </button>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.95rem' }}>
