@@ -264,19 +264,6 @@ export default function Dashboard({ setActiveTab }) {
             <p className="page-subtitle">Welcome to BrainBridge Tuition Admin Panel.</p>
           </div>
         </div>
-        {!isSubAdmin && (
-          <button 
-            className="btn btn-secondary" 
-            onClick={() => {
-              if (window.confirm("Are you sure you want to reset all local data to default demo values?")) {
-                dbService.resetDemoData();
-              }
-            }}
-            style={{ padding: '0.55rem 1rem', fontSize: '0.85rem', border: '1px solid var(--border-color)' }}
-          >
-            🔄 Reset Demo Data
-          </button>
-        )}
       </div>
 
       {/* Parent App Due Date Alert Banner */}
