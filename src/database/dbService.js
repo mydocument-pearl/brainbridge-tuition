@@ -1,5 +1,7 @@
-import { db, isFirebaseConfigured, auth } from './firebase';
 import { 
+  db, 
+  isFirebaseConfigured, 
+  auth,
   collection as firestoreCollection, 
   getDocs, 
   getDoc,
@@ -12,14 +14,12 @@ import {
   orderBy, 
   limit, 
   where,
-  onSnapshot
-} from "firebase/firestore";
-import {
+  onSnapshot,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged
-} from "firebase/auth";
+} from './firebase';
 
 // --- FIREBASE AUTHENTICATION HELPERS ---
 const AUTH_PROJECT_SECRET = "EduBridgeSecurePass2026!";
