@@ -88,3 +88,27 @@ To streamline user workflow and eliminate double data-entry:
 All changes have been successfully integrated and built:
 - APK: [EduBridge.apk](file:///D:/tuition-management-app/EduBridge.apk)
 - AAB: [EduBridge.aab](file:///D:/tuition-management-app/EduBridge.aab)
+
+---
+
+## 🗄️ Database Migration to Supabase (PostgreSQL)
+
+We have successfully migrated the application database layer from **Firebase Firestore** to **Supabase PostgreSQL**:
+
+### 1. Database Schema Translation
+- Recreated all core relational tables (`tenants`, `batches`, `students`, `staff_accounts`, `parent_accounts`, `inquiries`, `attendance`, `attendance_edit_logs`, `fees`, `tests`, `test_marks`, `timetable`, `homework`, `study_material`, `testimonials`, `chats`, `logs`) on Supabase.
+- Used `text` format for all primary and foreign key IDs to support custom Firestore document IDs (e.g., `"vdm"`, `"test_batch_id"`), ensuring 100% data compatibility.
+
+### 2. Data Migration Execution
+- Created and executed a robust migration script `migrate_to_supabase.js` that fetched all records from Firebase Firestore (using dynamic tenant owner logins) and upserted them directly into the PostgreSQL tables on Supabase.
+- Resolved and mapped date formats safely to `YYYY-MM-DD` and timestamps to standard ISO strings to satisfy PostgreSQL data type constraints.
+
+### 3. Transparent Client Proxy Integration
+- Modified [firebase.js](file:///D:/tuition-management-app/src/database/firebase.js) to acts as a Supabase adapter proxy. It implements all standard Firestore query signatures (`collection`, `doc`, `getDocs`, `getDoc`, `setDoc`, `updateDoc`, `addDoc`, `deleteDoc`, `query`, `where`, `orderBy`, `limit`, `onSnapshot`) and Firebase Auth signatures (`signInWithEmailAndPassword`, `signOut`, `onAuthStateChanged`), translating them to Supabase JS client operations under the hood.
+- Updated imports at the top of [dbService.js](file:///D:/tuition-management-app/src/database/dbService.js) to use this adapter. The entire database switch was accomplished cleanly **without making any changes to the UI components or business logic**.
+
+### 4. Verification & Build
+- The application compiled successfully for production:
+  - **Build Command**: `npm run build`
+  - **Status**: SUCCESS
+- All local Vite dev environment and production code is now powered entirely by **Supabase PostgreSQL**.
