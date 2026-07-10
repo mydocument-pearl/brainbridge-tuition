@@ -2230,24 +2230,71 @@ export const dbService = {
         let totalRejected = 0;
         let totalActiveUsers = 0;
 
-        for (const t of tenantsList) {
-          const batchesSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "batches"));
-          const studentsSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "students"));
-          const inquiriesSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "inquiries"));
-          const parentsSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "parent_accounts"));
-          
-          const feesSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "fees"));
-          const attendanceSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "attendance"));
-          const testsSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "tests"));
-          const marksSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "test_marks"));
-          const timetableSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "timetable"));
-          const homeworkSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "homework"));
-          const materialsSnap = await getDocs(firestoreCollection(db, "tenants", t.id, "study_material"));
+        const tenantStatsPromises = tenantsList.map(async (t) => {
+          const [
+            batchesSnap,
+            studentsSnap,
+            inquiriesSnap,
+            parentsSnap,
+            feesSnap,
+            attendanceSnap,
+            testsSnap,
+            marksSnap,
+            timetableSnap,
+            homeworkSnap,
+            materialsSnap
+          ] = await Promise.all([
+            getDocs(firestoreCollection(db, "tenants", t.id, "batches")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "students")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "inquiries")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "parent_accounts")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "fees")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "attendance")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "tests")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "test_marks")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "timetable")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "homework")),
+            getDocs(firestoreCollection(db, "tenants", t.id, "study_material"))
+          ]);
 
           const batches = batchesSnap.docs.map(d => d.data());
           const students = studentsSnap.docs.map(d => d.data()).filter(s => !s.archived);
           const inquiries = inquiriesSnap.docs.map(d => d.data());
           const parents = parentsSnap.docs.map(d => d.data());
+
+          return {
+            t,
+            batches,
+            students,
+            inquiries,
+            parents,
+            feesSnap,
+            attendanceSnap,
+            testsSnap,
+            marksSnap,
+            timetableSnap,
+            homeworkSnap,
+            materialsSnap
+          };
+        });
+
+        const tenantResults = await Promise.all(tenantStatsPromises);
+
+        for (const res of tenantResults) {
+          const {
+            t,
+            batches,
+            students,
+            inquiries,
+            parents,
+            feesSnap,
+            attendanceSnap,
+            testsSnap,
+            marksSnap,
+            timetableSnap,
+            homeworkSnap,
+            materialsSnap
+          } = res;
 
           batches.forEach(b => {
             if (b.teacher_name) totalTeachers.add(`${t.id}_${b.teacher_name}`);
