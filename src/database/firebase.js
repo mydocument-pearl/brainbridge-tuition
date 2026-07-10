@@ -309,6 +309,15 @@ export const signInWithEmailAndPassword = async (authInstance, email, password) 
     password
   });
   if (error) {
+    try {
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password
+      });
+      if (!signUpError && signUpData.user) {
+        return { user: signUpData.user };
+      }
+    } catch (e) {}
     console.error("Supabase Auth signIn error:", error);
     throw error;
   }
