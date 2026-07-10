@@ -92,6 +92,25 @@ const formatSqlDate = (dateVal) => {
   return dateVal;
 };
 
+// Tenant Row Sanitization Helper to prevent UI trim/undefined crashes
+const sanitizeTenantRow = (row) => {
+  if (!row) return row;
+  return {
+    logo_url: '/logo.png',
+    theme_color: '#2563eb',
+    owner_name: '',
+    owner_dob: '',
+    owner_address: '',
+    receipt_sub_header: '',
+    receipt_footer_note_1: '',
+    receipt_footer_note_2: '',
+    accepted_payment_modes: [],
+    rooms: [],
+    standards: [],
+    ...row
+  };
+};
+
 // Get Documents
 export const getDocs = async (queryRef) => {
   let q = supabase.from(queryRef.tableName).select('*');
@@ -130,10 +149,13 @@ export const getDocs = async (queryRef) => {
   return {
     empty: data.length === 0,
     size: data.length,
-    docs: data.map(row => ({
-      id: row.id || `${row.student_id}_${row.date}` || `${row.test_id}_${row.student_id}`,
-      data: () => row
-    }))
+    docs: data.map(row => {
+      const sanitized = queryRef.tableName === 'tenants' ? sanitizeTenantRow(row) : row;
+      return {
+        id: sanitized.id || `${sanitized.student_id}_${sanitized.date}` || `${sanitized.test_id}_${sanitized.student_id}`,
+        data: () => sanitized
+      };
+    })
   };
 };
 
@@ -156,10 +178,12 @@ export const getDoc = async (docRef) => {
     throw error;
   }
   
+  const sanitized = docRef.tableName === 'tenants' ? sanitizeTenantRow(data) : data;
+  
   return {
-    exists: () => !!data,
+    exists: () => !!sanitized,
     id: docRef.id,
-    data: () => data || null
+    data: () => sanitized || null
   };
 };
 
