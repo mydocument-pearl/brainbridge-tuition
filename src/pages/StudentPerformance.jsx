@@ -118,7 +118,7 @@ export default function StudentPerformance({ currentUser, verifyAction, activeTe
     const studentAttendance = attendance.filter(a => a.student_id === studentId);
     const presentCount = studentAttendance.filter(a => a.status === 'Present').length;
     const totalAttendance = studentAttendance.length;
-    const attendanceRate = totalAttendance > 0 ? Math.round((presentCount / totalAttendance) * 100) : 100;
+    const attendanceRate = totalAttendance > 0 ? Math.round((presentCount / totalAttendance) * 100) : 0;
 
     // 2. Academic Test Scores
     const studentScores = testMarks.filter(m => m.student_id === studentId);

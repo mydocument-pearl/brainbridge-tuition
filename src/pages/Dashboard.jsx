@@ -105,7 +105,7 @@ export default function Dashboard({ setActiveTab, currentUser, verifyAction, act
           // Individual Attendance Stats
           const studentAttendance = allAttendance.filter(a => a.student_id === studentId);
           const presentCount = studentAttendance.filter(a => a.status === 'Present').length;
-          const attRate = studentAttendance.length > 0 ? Math.round((presentCount / studentAttendance.length) * 100) : 100;
+          const attRate = studentAttendance.length > 0 ? Math.round((presentCount / studentAttendance.length) * 100) : 0;
 
           // Latest 5 attendance records sorted desc
           const sortedAttendance = [...studentAttendance].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
