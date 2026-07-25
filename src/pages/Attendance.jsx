@@ -2,12 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { dbService, formatDateDisplay, sendWhatsAppMessage } from '../database/dbService';
 import { Calendar, Save, Check, X, CheckSquare, Square, Eye, MessageCircle } from 'lucide-react';
 
+const getLocalDateString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const date = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${date}`;
+};
+
 export default function Attendance({ currentUser, verifyAction }) {
   const [batches, setBatches] = useState([]);
   const [students, setStudents] = useState([]);
   const [attendance, setAttendance] = useState({}); // student_id -> 'Present'/'Absent'
   const [selectedBatch, setSelectedBatch] = useState('');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(getLocalDateString());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -41,7 +49,7 @@ export default function Attendance({ currentUser, verifyAction }) {
       const elapsed = now - creationTime.getTime();
       setIsLocked(elapsed > 30 * 60 * 1000);
     } else {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getLocalDateString();
       if (selectedDate && selectedDate < todayStr) {
         setIsLocked(true);
       } else {
@@ -127,7 +135,7 @@ export default function Attendance({ currentUser, verifyAction }) {
           setIsLocked(elapsed > 30 * 60 * 1000);
         } else {
           // Legacy records
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = getLocalDateString();
           setCreationTime(null);
           if (selectedDate < todayStr) {
             setIsLocked(true);
