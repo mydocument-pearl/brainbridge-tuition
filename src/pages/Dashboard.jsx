@@ -20,6 +20,14 @@ const formatRelativeTime = (timestamp) => {
   return formatDateDisplay(timestamp.split('T')[0]);
 };
 
+const getLocalDateString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const date = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${date}`;
+};
+
 export default function Dashboard({ setActiveTab, currentUser, verifyAction, activeTenant }) {
   const isSubAdmin = import.meta.env.VITE_ROLE === 'admin2' || sessionStorage.getItem('bb_current_admin') === 'admin2';
   const [stats, setStats] = useState({
@@ -153,12 +161,13 @@ export default function Dashboard({ setActiveTab, currentUser, verifyAction, act
 
         } else {
           // Admin Loading
-          const [students, batches, fees, tstList, latestAttDate] = await Promise.all([
+          const todayStr = getLocalDateString();
+          const [students, batches, fees, tstList, attendanceLogs] = await Promise.all([
             dbService.getStudents(),
             dbService.getBatches(),
             dbService.getFees(),
             dbService.getTestimonials(),
-            dbService.getLatestAttendanceDate()
+            dbService.getAttendance(todayStr)
           ]);
 
           setStudents(students);
@@ -174,12 +183,9 @@ export default function Dashboard({ setActiveTab, currentUser, verifyAction, act
             else pending += f.amount;
           });
 
-          let attDate = latestAttDate || '2026-06-05';
-          let attendanceLogs = await dbService.getAttendance(attDate);
-          
           const presentCount = attendanceLogs.filter(a => a.status === 'Present').length;
           const rate = attendanceLogs.length > 0 ? Math.round((presentCount / attendanceLogs.length) * 100) : 0;
-          setAttendanceDate(formatDateDisplay(attDate));
+          setAttendanceDate(formatDateDisplay(todayStr));
 
           const paidFees = fees
             .filter(f => f.status === 'Paid')
@@ -199,7 +205,7 @@ export default function Dashboard({ setActiveTab, currentUser, verifyAction, act
           setStats({
             studentsCount,
             batchesCount,
-            attendanceRate: attendanceLogs.length > 0 ? rate : 85,
+            attendanceRate: rate,
             collectedFees: collected,
             pendingFees: pending,
             latestTestScore: '-',
